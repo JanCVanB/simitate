@@ -25,6 +25,7 @@
     "javascript"
   ],
   "author": "Jan Van Bruggen",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/jvanbrug/simitate/issues"
   },
