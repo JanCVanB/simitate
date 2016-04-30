@@ -1,4 +1,4 @@
-const createSimulation = () => 'cool';
+import createSimulation from './createSimulation';
 
 export {
   createSimulation,
