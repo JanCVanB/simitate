@@ -8,7 +8,22 @@ describe('A simulation', () => {
   });
 
   it('has a default state', () => {
-    const expectedDefaultState = {};
+    const expectedDefaultState = {
+      actors: [],
+    };
     expect(simulation.getState()).toEqual(expectedDefaultState);
+  });
+
+  it('can add actors', () => {
+    const alice = 'Alice';
+    const betty = 'Betty';
+
+    expect(simulation.getState().actors).toEqual([]);
+
+    simulation.addActor(alice);
+    expect(simulation.getState().actors).toEqual([alice]);
+
+    simulation.addActor(betty);
+    expect(simulation.getState().actors).toEqual([alice, betty]);
   });
 });
