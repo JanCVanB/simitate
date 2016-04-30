@@ -1,0 +1,9 @@
+env:
+  jasmine: true
+  node: true
+extends:
+  - airbnb
+  - plugin:jasmine/recommended
+plugins:
+  - jasmine
+  - react
