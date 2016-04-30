@@ -1,0 +1,32 @@
+{
+  "name": "simitate",
+  "version": "0.0.0",
+  "description": "Architect and visualize actor-based simulations that imitate reality",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jvanbrug/simitate.git"
+  },
+  "keywords": [
+    "simulation",
+    "actor",
+    "discrete",
+    "event",
+    "timestep",
+    "time",
+    "step",
+    "continuous",
+    "trigger",
+    "schedule",
+    "queue",
+    "state",
+    "redux",
+    "architect",
+    "visualize",
+    "javascript"
+  ],
+  "author": "Jan Van Bruggen",
+  "bugs": {
+    "url": "https://github.com/jvanbrug/simitate/issues"
+  },
+  "homepage": "https://github.com/jvanbrug/simitate#readme"
+}
