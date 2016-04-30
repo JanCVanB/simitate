@@ -5,6 +5,7 @@ import {
 
 export default function createSimulation() {
   const state = {
+    currentStep: 0,
     actors: [],
     timeline: [],
   };
