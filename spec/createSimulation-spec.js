@@ -7,7 +7,8 @@ describe('A simulation', () => {
     simulation = simitate.createSimulation();
   });
 
-  it('should be cool', () => {
-    expect(simulation).toBe('cool');
+  it('has a default state', () => {
+    const expectedDefaultState = {};
+    expect(simulation.getState()).toEqual(expectedDefaultState);
   });
 });
