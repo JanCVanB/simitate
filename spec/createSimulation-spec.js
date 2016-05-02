@@ -2,11 +2,15 @@ const simitate = require('../src/index');
 
 describe('A simulation', () => {
   let simulation;
+  const alice = { name: 'Alice' };
+  const betty = { name: 'Betty' };
+  const actors = [alice, betty];
   const noonTime = 1200;
   const nightTime = 1900;
   const noonEvent = { name: 'Noon' };
   const lunchEvent = { name: 'Lunch' };
   const nightEvent = { name: 'Night' };
+  const events = [noonEvent, lunchEvent, nightEvent];
 
   beforeEach(() => {
     simulation = simitate.createSimulation();
@@ -14,25 +18,23 @@ describe('A simulation', () => {
 
   it('has a default state', () => {
     const expectedDefaultState = {
-      actors: [],
+      currentActors: [],
       currentStep: 0,
+      initialActors: [],
       initialEvents: [],
       timeline: [],
     };
     expect(simulation.getState()).toEqual(expectedDefaultState);
   });
 
-  it('can add actors', () => {
-    const alice = { name: 'Alice' };
-    const betty = { name: 'Betty' };
+  it('can add initial actors', () => {
+    expect(simulation.getState().initialActors).toEqual([]);
 
-    expect(simulation.getState().actors).toEqual([]);
+    simulation.dispatch({ type: 'ADD_INITIAL_ACTOR', actor: alice });
+    expect(simulation.getState().initialActors).toEqual([alice]);
 
-    simulation.dispatch({ type: 'ADD_ACTOR', actor: alice });
-    expect(simulation.getState().actors).toEqual([alice]);
-
-    simulation.dispatch({ type: 'ADD_ACTOR', actor: betty });
-    expect(simulation.getState().actors).toEqual([alice, betty]);
+    simulation.dispatch({ type: 'ADD_INITIAL_ACTOR', actor: betty });
+    expect(simulation.getState().initialActors).toEqual([alice, betty]);
   });
 
   it('can add initial events', () => {

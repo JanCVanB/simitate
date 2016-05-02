@@ -2,10 +2,8 @@ import { combineReducers, createStore } from 'redux';
 import scheduleEvent from './scheduleEvent';
 
 export default function createSimulation() {
-  const actors = (state = [], action) => {
+  const currentActors = (state = [], action) => {
     switch (action.type) {
-      case 'ADD_ACTOR':
-        return [...state, action.actor];
       default:
         return state;
     }
@@ -13,6 +11,15 @@ export default function createSimulation() {
 
   const currentStep = (state = 0, action) => {
     switch (action.type) {
+      default:
+        return state;
+    }
+  };
+
+  const initialActors = (state = [], action) => {
+    switch (action.type) {
+      case 'ADD_INITIAL_ACTOR':
+        return [...state, action.actor];
       default:
         return state;
     }
@@ -37,8 +44,9 @@ export default function createSimulation() {
   };
 
   const simulation = combineReducers({
-    actors,
+    currentActors,
     currentStep,
+    initialActors,
     initialEvents,
     timeline,
   });
