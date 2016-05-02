@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import { combineReducers, createStore } from 'redux';
 import scheduleEvent from './scheduleEvent';
 
@@ -16,6 +17,8 @@ export default function createSimulation(eventReactions) {
 
   const currentStep = (state = 0, action) => {
     switch (action.type) {
+      case 'INCREMENT_CURRENT_STEP':
+        return state + 1;
       default:
         return state;
     }
@@ -41,6 +44,17 @@ export default function createSimulation(eventReactions) {
 
   const timeline = (state = [], action) => {
     switch (action.type) {
+      case 'LOG_ACTORS':
+        return (
+          Immutable.fromJS(state).map((step, index) => {
+            if (index === action.currentStep) {
+              return step.set(
+                'actors', Immutable.fromJS(action.actors).toJS()
+              ).toJS();
+            }
+            return step;
+          }).toJS()
+        );
       case 'SCHEDULE_EVENT':
         return scheduleEvent([...state], action.time, action.event);
       default:

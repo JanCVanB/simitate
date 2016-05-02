@@ -9,20 +9,28 @@ describe('A simulation', () => {
   const dawnTimeOfDay = 500;
   const noonTimeOfDay = 1200;
   const duskTimeOfDay = 1900;
-  const dawnEvent = { type: 'TIME_OF_DAY', timeOfDay: dawnTimeOfDay };
-  const noonEvent = { type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay };
-  const lunchEvent = { type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay };
-  const duskEvent = { type: 'TIME_OF_DAY', timeOfDay: duskTimeOfDay };
+  const dawnEvent = {
+    type: 'TIME_OF_DAY', timeOfDay: dawnTimeOfDay, time: dawnTimeOfDay,
+  };
+  const noonEvent = {
+    type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay, time: noonTimeOfDay,
+  };
+  const lunchEvent = {
+    type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay, time: noonTimeOfDay,
+  };
+  const duskEvent = {
+    type: 'TIME_OF_DAY', timeOfDay: duskTimeOfDay, time: duskTimeOfDay,
+  };
   const events = [dawnEvent, noonEvent, lunchEvent, duskEvent];
   const actorsReactions = {
     TIME_OF_DAY: (currentActors, event) => {
       switch (event.timeOfDay) {
         case dawnTimeOfDay:
           return currentActors.map(actor =>
-            Immutable.Map(actor).set('awake', true).toJS());
+            Immutable.fromJS(actor).set('awake', true).toJS());
         case duskTimeOfDay:
-          return currentActors.map((actor) =>
-            Immutable.Map(actor).set('awake', false).toJS());
+          return currentActors.map(actor =>
+            Immutable.fromJS(actor).set('awake', false).toJS());
         default:
           return currentActors;
       }
@@ -93,10 +101,10 @@ describe('A simulation', () => {
   });
 
   it('can handle event reactions', () => {
-    const awakeAlice = Immutable.Map(alice).set('awake', true).toJS();
-    const awakeBetty = Immutable.Map(betty).set('awake', true).toJS();
-    const asleepAlice = Immutable.Map(alice).set('awake', false).toJS();
-    const asleepBetty = Immutable.Map(betty).set('awake', false).toJS();
+    const awakeAlice = Immutable.fromJS(alice).set('awake', true).toJS();
+    const awakeBetty = Immutable.fromJS(betty).set('awake', true).toJS();
+    const asleepAlice = Immutable.fromJS(alice).set('awake', false).toJS();
+    const asleepBetty = Immutable.fromJS(betty).set('awake', false).toJS();
 
     setUp(simulation);
     expect(simulation.getState().currentActors).toEqual([]);
@@ -155,6 +163,32 @@ describe('A simulation', () => {
       { time: noonTimeOfDay, event: noonEvent },
       { time: noonTimeOfDay, event: lunchEvent },
       { time: duskTimeOfDay, event: duskEvent },
+    ]);
+  });
+
+  it('can increment current step', () => {
+    expect(simulation.getState().currentStep).toEqual(0);
+
+    simulation.dispatch({ type: 'INCREMENT_CURRENT_STEP' });
+    expect(simulation.getState().currentStep).toEqual(1);
+
+    simulation.dispatch({ type: 'INCREMENT_CURRENT_STEP' });
+    expect(simulation.getState().currentStep).toEqual(2);
+  });
+
+  it('can run', () => {
+    const asleepActors = actors.map(
+      actor => Immutable.fromJS(actor).set('awake', false).toJS()
+    );
+    expect(simulation.getState().timeline).toEqual([]);
+
+    setUp(simulation);
+    simitate.run(simulation);
+    expect(simulation.getState().timeline).toEqual([
+      { time: dawnTimeOfDay, event: dawnEvent, actors },
+      { time: noonTimeOfDay, event: noonEvent, actors },
+      { time: noonTimeOfDay, event: lunchEvent, actors },
+      { time: duskTimeOfDay, event: duskEvent, actors: asleepActors },
     ]);
   });
 });
