@@ -21,6 +21,15 @@ export default function createSimulation() {
     }
   };
 
+  const initialEvents = (state = [], action) => {
+    switch (action.type) {
+      case 'ADD_INITIAL_EVENT':
+        return [...state, action.event];
+      default:
+        return state;
+    }
+  };
+
   const getExistingTimelineStep = (timeline, time) => {
     const stepHasEqualTime = (step) => step.time === time;
     return getIndexOfFirstElementThatSatisfies(timeline, stepHasEqualTime);
@@ -63,6 +72,7 @@ export default function createSimulation() {
   const simulation = combineReducers({
     currentStep,
     actors,
+    initialEvents,
     timeline,
   });
 
