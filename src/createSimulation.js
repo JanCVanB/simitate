@@ -1,8 +1,5 @@
 import { combineReducers, createStore } from 'redux';
-import {
-  getIndexOfFirstElementThatSatisfies,
-  insertElementIntoArrayAtIndex,
-} from './utils';
+import scheduleEvent from './scheduleEvent';
 
 export default function createSimulation() {
   const actors = (state = [], action) => {
@@ -28,36 +25,6 @@ export default function createSimulation() {
       default:
         return state;
     }
-  };
-
-  const getExistingTimelineStep = (timeline, time) => {
-    const stepHasEqualTime = (step) => step.time === time;
-    return getIndexOfFirstElementThatSatisfies(timeline, stepHasEqualTime);
-  };
-
-  const getNextTimelineStep = (timeline, time) => {
-    const stepHasGreaterTime = (step) => step.time > time;
-    const firstIndex = getIndexOfFirstElementThatSatisfies(
-      timeline, stepHasGreaterTime
-    );
-    if (firstIndex === -1) {
-      return timeline.length;
-    }
-    return firstIndex;
-  };
-
-  const scheduleEvent = (timeline, event) => {
-    const existingTimelineStep = getExistingTimelineStep(timeline, event.time);
-    if (existingTimelineStep === -1) {
-      const newMoment = { time: event.time, events: [event] };
-      const nextTimelineStep = getNextTimelineStep(timeline, event.time);
-      insertElementIntoArrayAtIndex(
-        newMoment, timeline, nextTimelineStep
-      );
-    } else {
-      timeline[existingTimelineStep].events.push(event);
-    }
-    return timeline;
   };
 
   const timeline = (state = [], action) => {
