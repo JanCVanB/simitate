@@ -1,10 +1,15 @@
 import { combineReducers, createStore } from 'redux';
 import scheduleEvent from './scheduleEvent';
 
-export default function createSimulation() {
+export default function createSimulation(eventReactions) {
   const currentActors = (state = [], action) => {
     switch (action.type) {
+      case 'INITIALIZE_CURRENT_ACTORS':
+        return action.actors;
       default:
+        if (action.type in eventReactions) {
+          return eventReactions[action.type](state, action);
+        }
         return state;
     }
   };
