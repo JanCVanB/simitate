@@ -5,17 +5,17 @@ import {
 } from './utils';
 
 export default function createSimulation() {
-  const currentStep = (state = 0, action) => {
+  const actors = (state = [], action) => {
     switch (action.type) {
+      case 'ADD_ACTOR':
+        return [...state, action.actor];
       default:
         return state;
     }
   };
 
-  const actors = (state = [], action) => {
+  const currentStep = (state = 0, action) => {
     switch (action.type) {
-      case 'ADD_ACTOR':
-        return [...state, action.actor];
       default:
         return state;
     }
@@ -70,8 +70,8 @@ export default function createSimulation() {
   };
 
   const simulation = combineReducers({
-    currentStep,
     actors,
+    currentStep,
     initialEvents,
     timeline,
   });

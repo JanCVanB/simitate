@@ -16,8 +16,8 @@ describe('A simulation', () => {
 
   it('has a default state', () => {
     const expectedDefaultState = {
-      currentStep: 0,
       actors: [],
+      currentStep: 0,
       initialEvents: [],
       timeline: [],
     };
