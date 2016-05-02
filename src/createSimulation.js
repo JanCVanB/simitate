@@ -1,55 +1,72 @@
+import { combineReducers, createStore } from 'redux';
 import {
   getIndexOfFirstElementThatSatisfies,
   insertElementIntoArrayAtIndex,
 } from './utils';
 
 export default function createSimulation() {
-  const state = {
-    currentStep: 0,
-    actors: [],
-    timeline: [],
+  const currentStep = (state = 0, action) => {
+    switch (action.type) {
+      default:
+        return state;
+    }
   };
 
-  const getState = () => state;
-
-  const addActor = (actor) => {
-    state.actors.push(actor);
+  const actors = (state = [], action) => {
+    switch (action.type) {
+      case 'ADD_ACTOR':
+        return [...state, action.actor];
+      default:
+        return state;
+    }
   };
 
-  const getExistingTimelineStep = (time) => {
+  const getExistingTimelineStep = (timeline, time) => {
     const stepHasEqualTime = (step) => step.time === time;
-    return getIndexOfFirstElementThatSatisfies(state.timeline, stepHasEqualTime);
+    return getIndexOfFirstElementThatSatisfies(timeline, stepHasEqualTime);
   };
 
-  const getNextTimelineStep = (time) => {
+  const getNextTimelineStep = (timeline, time) => {
     const stepHasGreaterTime = (step) => step.time > time;
     const firstIndex = getIndexOfFirstElementThatSatisfies(
-      state.timeline, stepHasGreaterTime
+      timeline, stepHasGreaterTime
     );
     if (firstIndex === -1) {
-      return state.timeline.length;
+      return timeline.length;
     }
     return firstIndex;
   };
 
-  const scheduleEvent = (event) => {
-    const existingTimelineStep = getExistingTimelineStep(event.time);
+  const scheduleEvent = (timeline, event) => {
+    const existingTimelineStep = getExistingTimelineStep(timeline, event.time);
     if (existingTimelineStep === -1) {
       const newMoment = { time: event.time, events: [event] };
-      const nextTimelineStep = getNextTimelineStep(event.time);
+      const nextTimelineStep = getNextTimelineStep(timeline, event.time);
       insertElementIntoArrayAtIndex(
-        newMoment, state.timeline, nextTimelineStep
+        newMoment, timeline, nextTimelineStep
       );
     } else {
-      state.timeline[existingTimelineStep].events.push(event);
+      timeline[existingTimelineStep].events.push(event);
+    }
+    return timeline;
+  };
+
+  const timeline = (state = [], action) => {
+    switch (action.type) {
+      case 'SCHEDULE_EVENT':
+        return scheduleEvent([...state], action.event);
+      default:
+        return state;
     }
   };
 
-  const simulation = {
-    getState,
-    addActor,
-    scheduleEvent,
-  };
+  const simulation = combineReducers({
+    currentStep,
+    actors,
+    timeline,
+  });
 
-  return simulation;
+  const simulationStore = createStore(simulation);
+
+  return simulationStore;
 }

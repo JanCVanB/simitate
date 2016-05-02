@@ -4,6 +4,9 @@ env:
 extends:
   - airbnb
   - plugin:jasmine/recommended
+parserOptions:
+  ecmaFeatures:
+    experimentalObjectRestSpread: true
 plugins:
   - jasmine
   - react

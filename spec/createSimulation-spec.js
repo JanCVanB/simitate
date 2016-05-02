@@ -17,15 +17,15 @@ describe('A simulation', () => {
   });
 
   it('can add actors', () => {
-    const alice = 'Alice';
-    const betty = 'Betty';
+    const alice = { name: 'Alice' };
+    const betty = { name: 'Betty' };
 
     expect(simulation.getState().actors).toEqual([]);
 
-    simulation.addActor(alice);
+    simulation.dispatch({ type: 'ADD_ACTOR', actor: alice });
     expect(simulation.getState().actors).toEqual([alice]);
 
-    simulation.addActor(betty);
+    simulation.dispatch({ type: 'ADD_ACTOR', actor: betty });
     expect(simulation.getState().actors).toEqual([alice, betty]);
   });
 
@@ -40,19 +40,19 @@ describe('A simulation', () => {
 
     expect(simulation.getState().timeline).toEqual(expectedTimeline);
 
-    simulation.scheduleEvent(noonEvent);
+    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: noonEvent });
     expectedTimeline = [
       { time: noonTime, events: [noonEvent] },
     ];
     expect(simulation.getState().timeline).toEqual(expectedTimeline);
 
-    simulation.scheduleEvent(lunchEvent);
+    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: lunchEvent });
     expectedTimeline = [
       { time: noonTime, events: [noonEvent, lunchEvent] },
     ];
     expect(simulation.getState().timeline).toEqual(expectedTimeline);
 
-    simulation.scheduleEvent(nightEvent);
+    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: nightEvent });
     expectedTimeline = [
       { time: noonTime, events: [noonEvent, lunchEvent] },
       { time: nightTime, events: [nightEvent] },
