@@ -10,3 +10,5 @@ parserOptions:
 plugins:
   - jasmine
   - react
+rules:
+  no-console: 0
