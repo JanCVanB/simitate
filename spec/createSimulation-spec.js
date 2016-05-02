@@ -3,12 +3,10 @@ const simitate = require('../src/index');
 describe('A simulation', () => {
   let simulation;
   const noonTime = 1200;
-  const lunchTime = noonTime;
   const nightTime = 1900;
-  const noonEvent = { time: noonTime };
-  const lunchEvent = { time: lunchTime };
-  const nightEvent = { time: nightTime };
-
+  const noonEvent = { name: 'Noon' };
+  const lunchEvent = { name: 'Lunch' };
+  const nightEvent = { name: 'Night' };
 
   beforeEach(() => {
     simulation = simitate.createSimulation();
@@ -55,27 +53,30 @@ describe('A simulation', () => {
   });
 
   it('can schedule events', () => {
-    let expectedTimeline = [];
+    expect(simulation.getState().timeline).toEqual([]);
 
-    expect(simulation.getState().timeline).toEqual(expectedTimeline);
+    simulation.dispatch({
+      type: 'SCHEDULE_EVENT', time: noonTime, event: noonEvent,
+    });
+    expect(simulation.getState().timeline).toEqual([
+      { time: noonTime, event: noonEvent },
+    ]);
 
-    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: noonEvent });
-    expectedTimeline = [
-      { time: noonTime, events: [noonEvent] },
-    ];
-    expect(simulation.getState().timeline).toEqual(expectedTimeline);
+    simulation.dispatch({
+      type: 'SCHEDULE_EVENT', time: nightTime, event: nightEvent,
+    });
+    expect(simulation.getState().timeline).toEqual([
+      { time: noonTime, event: noonEvent },
+      { time: nightTime, event: nightEvent },
+    ]);
 
-    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: lunchEvent });
-    expectedTimeline = [
-      { time: noonTime, events: [noonEvent, lunchEvent] },
-    ];
-    expect(simulation.getState().timeline).toEqual(expectedTimeline);
-
-    simulation.dispatch({ type: 'SCHEDULE_EVENT', event: nightEvent });
-    expectedTimeline = [
-      { time: noonTime, events: [noonEvent, lunchEvent] },
-      { time: nightTime, events: [nightEvent] },
-    ];
-    expect(simulation.getState().timeline).toEqual(expectedTimeline);
+    simulation.dispatch({
+      type: 'SCHEDULE_EVENT', time: noonTime, event: lunchEvent,
+    });
+    expect(simulation.getState().timeline).toEqual([
+      { time: noonTime, event: noonEvent },
+      { time: noonTime, event: lunchEvent },
+      { time: nightTime, event: nightEvent },
+    ]);
   });
 });

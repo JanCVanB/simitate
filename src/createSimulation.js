@@ -30,7 +30,7 @@ export default function createSimulation() {
   const timeline = (state = [], action) => {
     switch (action.type) {
       case 'SCHEDULE_EVENT':
-        return scheduleEvent([...state], action.event);
+        return scheduleEvent([...state], action.time, action.event);
       default:
         return state;
     }
