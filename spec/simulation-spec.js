@@ -84,7 +84,7 @@ describe('A simulation', () => {
     );
   });
 
-  it('can handle event reactions', () => {
+  it('can handle actor reactions', () => {
     expect(simulation.getState().actors).toEqual(awakeActors);
 
     simulation.dispatch(duskEvent);

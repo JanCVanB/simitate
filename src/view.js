@@ -1,7 +1,7 @@
-const getActorsOverTime = (simulation) => (
-  simulation.getState().timeline.map(step => step.actors)
+const getActorHistories = (simulation) => (
+  simulation.getState().actors.map(actor => actor.history)
 );
 
 export {
-  getActorsOverTime,
+  getActorHistories,
 };
