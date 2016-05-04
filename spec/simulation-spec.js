@@ -36,7 +36,37 @@ describe('A simulation', () => {
       }
     },
   };
-
+  const timelineReactions = {
+    TIME_OF_DAY: (currentTimeline, event) => {
+      if (event.time > 24000) {
+        return currentTimeline;
+      }
+      switch (event.timeOfDay) {
+        case dawnTimeOfDay: {
+          const nextDusk = {
+            type: 'TIME_OF_DAY',
+            time: event.time + duskTimeOfDay - dawnTimeOfDay,
+            timeOfDay: duskTimeOfDay,
+          };
+          return simitate.insertEventIntoTimeline(
+            nextDusk, [...currentTimeline]
+          );
+        }
+        case duskTimeOfDay: {
+          const nextDawn = {
+            type: 'TIME_OF_DAY',
+            time: event.time + 2400 - (duskTimeOfDay - dawnTimeOfDay),
+            timeOfDay: dawnTimeOfDay,
+          };
+          return simitate.insertEventIntoTimeline(
+            nextDawn, [...currentTimeline]
+          );
+        }
+        default:
+          return currentTimeline;
+      }
+    },
+  };
 
   const awakeActors = initialActors.map(actor => (
     Immutable.fromJS(actor).set('awake', true).toJS()
@@ -47,7 +77,7 @@ describe('A simulation', () => {
 
   beforeEach(() => {
     simulation = simitate.createSimulation(
-      initialActors, initialTimeline, actorReactions
+      initialActors, initialTimeline, actorReactions, timelineReactions
     );
   });
 
@@ -94,6 +124,22 @@ describe('A simulation', () => {
     expect(simulation.getState().actors).toEqual(awakeActors);
   });
 
+  it('can handle timeline reactions', () => {
+    expect(simulation.getState().timeline.length).toEqual(
+      initialTimeline.length
+    );
+
+    simulation.dispatch(duskEvent);
+    expect(simulation.getState().timeline.length).toEqual(
+      initialTimeline.length + 1
+    );
+
+    simulation.dispatch(dawnEvent);
+    expect(simulation.getState().timeline.length).toEqual(
+      initialTimeline.length + 2
+    );
+  });
+
   it('can increment current event index', () => {
     expect(simulation.getState().currentEventIndex).toEqual(0);
 
@@ -128,8 +174,6 @@ describe('A simulation', () => {
     expect(simulation.getState().currentEventIndex).toEqual(0);
 
     simitate.run(simulation);
-    expect(simulation.getState().currentEventIndex).toEqual(
-      initialTimeline.length
-    );
+    expect(simulation.getState().currentEventIndex).toEqual(43);
   });
 });

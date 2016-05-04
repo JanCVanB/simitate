@@ -14,7 +14,7 @@ const initialActors = [
   { name: 'Alice', awake: true, fullness: 1, metabolism: 0.9 },
   { name: 'Betty', awake: true, fullness: 1, metabolism: 1.3 },
 ];
-const initialEvents = [
+const initialTimeline = [
   { time: 1.00, type: TIME_OF_DAY, timeOfDay: midnight },
   { time: 1.25, type: TIME_OF_DAY, timeOfDay: dawn },
   { time: 1.30, type: BREAKFAST },
@@ -29,7 +29,7 @@ const initialEvents = [
   { time: 2.75, type: TIME_OF_DAY, timeOfDay: dusk },
 ];
 
-const actorsReactions = {
+const actorReactions = {
   BREAKFAST: (currentActors) => (
     currentActors.map(actor => (
       Immutable.fromJS(actor).set('fullness', 0.7).toJS()
@@ -70,14 +70,16 @@ const actorsReactions = {
   },
 };
 
+const timelineReactions = {};
+
 const simulation = simitate.createSimulation(
-  initialActors, initialEvents, actorsReactions
+  initialActors, initialTimeline, actorReactions, timelineReactions
 );
 simitate.run(simulation);
 
-const simulationResults = simitate.getActorHistories(simulation);
-const aliceFullnessOverTime = simulationResults[0].map(event => event.fullness);
-const bettyFullnessOverTime = simulationResults[1].map(event => event.fullness);
+const actorHistories = simitate.getActorHistories(simulation);
+const aliceFullnessOverTime = actorHistories[0].map(event => event.fullness);
+const bettyFullnessOverTime = actorHistories[1].map(event => event.fullness);
 
 console.log();
 console.log('Alice\'s fullness over time:');

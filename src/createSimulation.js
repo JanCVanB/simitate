@@ -3,7 +3,7 @@ import { combineReducers, createStore } from 'redux';
 import { insertEventIntoTimeline } from './timelineUtils';
 
 export default function createSimulation(
-  initialActors, initialTimeline, actorReactions
+  initialActors, initialTimeline, actorReactions, timelineReactions
 ) {
   const actors = (actors_ = initialActors, event) => {
     switch (event.type) {
@@ -43,6 +43,9 @@ export default function createSimulation(
       case 'ADD_EVENT':
         return insertEventIntoTimeline(event.event, [...timeline_]);
       default:
+        if (event.type in timelineReactions) {
+          return timelineReactions[event.type](timeline_, event);
+        }
         return timeline_;
     }
   };
