@@ -70,18 +70,14 @@ const actorsReactions = {
   },
 };
 
-const simulation = simitate.createSimulation(actorsReactions);
-initialActors.forEach(
-  (actor) => simulation.dispatch({ type: 'ADD_INITIAL_ACTOR', actor })
-);
-initialEvents.forEach(
-  (event) => simulation.dispatch({ type: 'ADD_INITIAL_EVENT', event })
+const simulation = simitate.createSimulation(
+  initialActors, initialEvents, actorsReactions
 );
 simitate.run(simulation);
 
-const simulationResults = simitate.getActorsOverTime(simulation);
-const aliceFullnessOverTime = simulationResults.map(step => step[0].fullness);
-const bettyFullnessOverTime = simulationResults.map(step => step[1].fullness);
+const simulationResults = simitate.getActorHistories(simulation);
+const aliceFullnessOverTime = simulationResults[0].map(event => event.fullness);
+const bettyFullnessOverTime = simulationResults[1].map(event => event.fullness);
 
 console.log();
 console.log('Alice\'s fullness over time:');
