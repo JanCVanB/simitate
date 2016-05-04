@@ -1,6 +1,7 @@
-# simitate
+# Simitate
 
-Architect and visualize actor-based simulations that imitate reality
+Architect and visualize actor/event-based simulations
+that imitate the cause-and-effect of reality
 
 ## How to run a simulation
 
