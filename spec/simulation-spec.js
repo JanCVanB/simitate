@@ -5,24 +5,24 @@ describe('A simulation', () => {
   let simulation;
   const alice = { name: 'Alice', awake: true };
   const betty = { name: 'Betty', awake: true };
-  const actors = [alice, betty];
+  const initialActors = [alice, betty];
   const dawnTimeOfDay = 500;
   const noonTimeOfDay = 1200;
   const duskTimeOfDay = 1900;
   const dawnEvent = {
-    type: 'TIME_OF_DAY', timeOfDay: dawnTimeOfDay, time: dawnTimeOfDay,
+    type: 'TIME_OF_DAY', time: dawnTimeOfDay, timeOfDay: dawnTimeOfDay,
   };
   const noonEvent = {
-    type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay, time: noonTimeOfDay,
+    type: 'TIME_OF_DAY', time: noonTimeOfDay, timeOfDay: noonTimeOfDay,
   };
   const lunchEvent = {
-    type: 'TIME_OF_DAY', timeOfDay: noonTimeOfDay, time: noonTimeOfDay,
+    type: 'TIME_OF_DAY', time: noonTimeOfDay, timeOfDay: noonTimeOfDay,
   };
   const duskEvent = {
-    type: 'TIME_OF_DAY', timeOfDay: duskTimeOfDay, time: duskTimeOfDay,
+    type: 'TIME_OF_DAY', time: duskTimeOfDay, timeOfDay: duskTimeOfDay,
   };
-  const events = [dawnEvent, noonEvent, lunchEvent, duskEvent];
-  const actorsReactions = {
+  const initialTimeline = [dawnEvent, noonEvent, lunchEvent, duskEvent];
+  const actorReactions = {
     TIME_OF_DAY: (currentActors, event) => {
       switch (event.timeOfDay) {
         case dawnTimeOfDay:
@@ -37,158 +37,99 @@ describe('A simulation', () => {
     },
   };
 
+
+  const awakeActors = initialActors.map(actor => (
+    Immutable.fromJS(actor).set('awake', true).toJS()
+  ));
+  const asleepActors = initialActors.map(actor => (
+    Immutable.fromJS(actor).set('awake', false).toJS()
+  ));
+
   beforeEach(() => {
-    simulation = simitate.createSimulation(actorsReactions);
+    simulation = simitate.createSimulation(
+      initialActors, initialTimeline, actorReactions
+    );
   });
 
   it('has a default state', () => {
     const expectedDefaultState = {
-      currentActors: [],
-      currentStep: 0,
-      initialActors: [],
-      initialEvents: [],
-      timeline: [],
+      actors: initialActors,
+      currentEventIndex: 0,
+      timeline: initialTimeline,
     };
     expect(simulation.getState()).toEqual(expectedDefaultState);
   });
 
-  it('can add initial actors', () => {
-    expect(simulation.getState().initialActors).toEqual([]);
+  it('can add actors', () => {
+    expect(simulation.getState().actors).toEqual(initialActors);
 
-    simulation.dispatch({ type: 'ADD_INITIAL_ACTOR', actor: alice });
-    expect(simulation.getState().initialActors).toEqual([alice]);
-
-    simulation.dispatch({ type: 'ADD_INITIAL_ACTOR', actor: betty });
-    expect(simulation.getState().initialActors).toEqual([alice, betty]);
+    const carol = { name: 'Carol', awake: true };
+    simulation.dispatch({ type: 'ADD_ACTOR', actor: carol });
+    expect(simulation.getState().actors).toEqual([...initialActors, carol]);
   });
 
-  it('can add initial events', () => {
-    expect(simulation.getState().initialEvents).toEqual([]);
+  it('can add events', () => {
+    expect(simulation.getState().timeline).toEqual(initialTimeline);
 
-    simulation.dispatch({ type: 'ADD_INITIAL_EVENT', event: dawnEvent });
-    expect(simulation.getState().initialEvents).toEqual([dawnEvent]);
-
-    simulation.dispatch({ type: 'ADD_INITIAL_EVENT', event: noonEvent });
-    expect(simulation.getState().initialEvents).toEqual([
-      dawnEvent, noonEvent,
-    ]);
-
-    simulation.dispatch({ type: 'ADD_INITIAL_EVENT', event: lunchEvent });
-    expect(simulation.getState().initialEvents).toEqual([
-      dawnEvent, noonEvent, lunchEvent,
-    ]);
-
-    simulation.dispatch({ type: 'ADD_INITIAL_EVENT', event: duskEvent });
-    expect(simulation.getState().initialEvents).toEqual([
-      dawnEvent, noonEvent, lunchEvent, duskEvent,
-    ]);
-  });
-
-  const setUp = (sim) => {
-    actors.map((actor) => sim.dispatch({ type: 'ADD_INITIAL_ACTOR', actor }));
-    events.map((event) => sim.dispatch({ type: 'ADD_INITIAL_EVENT', event }));
-  };
-
-  it('can initialize the current actors', () => {
-    setUp(simulation);
-    expect(simulation.getState().currentActors).toEqual([]);
-
-    simulation.dispatch({
-      type: 'INITIALIZE_CURRENT_ACTORS',
-      actors: simulation.getState().initialActors,
-    });
-    expect(simulation.getState().currentActors).toEqual(actors);
+    const secondDawnEvent = {
+      type: 'TIME_OF_DAY', time: 2400 + dawnTimeOfDay, timeOfDay: dawnTimeOfDay,
+    };
+    const secondDuskEvent = {
+      type: 'TIME_OF_DAY', time: 2400 + duskTimeOfDay, timeOfDay: duskTimeOfDay,
+    };
+    simulation.dispatch({ type: 'ADD_EVENT', event: secondDuskEvent });
+    simulation.dispatch({ type: 'ADD_EVENT', event: secondDawnEvent });
+    expect(simulation.getState().timeline).toEqual(
+      [...initialTimeline, secondDawnEvent, secondDuskEvent]
+    );
   });
 
   it('can handle event reactions', () => {
-    const awakeAlice = Immutable.fromJS(alice).set('awake', true).toJS();
-    const awakeBetty = Immutable.fromJS(betty).set('awake', true).toJS();
-    const asleepAlice = Immutable.fromJS(alice).set('awake', false).toJS();
-    const asleepBetty = Immutable.fromJS(betty).set('awake', false).toJS();
-
-    setUp(simulation);
-    expect(simulation.getState().currentActors).toEqual([]);
-
-    simulation.dispatch({
-      type: 'INITIALIZE_CURRENT_ACTORS',
-      actors: simulation.getState().initialActors,
-    });
-    expect(simulation.getState().currentActors).toEqual([
-      awakeAlice, awakeBetty,
-    ]);
+    expect(simulation.getState().actors).toEqual(awakeActors);
 
     simulation.dispatch(duskEvent);
-    expect(simulation.getState().currentActors).toEqual([
-      asleepAlice, asleepBetty,
-    ]);
+    expect(simulation.getState().actors).toEqual(asleepActors);
 
     simulation.dispatch(dawnEvent);
-    expect(simulation.getState().currentActors).toEqual([
-      awakeAlice, awakeBetty,
-    ]);
+    expect(simulation.getState().actors).toEqual(awakeActors);
   });
 
-  it('can schedule events', () => {
-    expect(simulation.getState().timeline).toEqual([]);
+  it('can increment current event index', () => {
+    expect(simulation.getState().currentEventIndex).toEqual(0);
 
-    simulation.dispatch({
-      type: 'SCHEDULE_EVENT', time: dawnTimeOfDay, event: dawnEvent,
-    });
-    expect(simulation.getState().timeline).toEqual([
-      { time: dawnTimeOfDay, event: dawnEvent },
-    ]);
+    simulation.dispatch({ type: 'INCREMENT_CURRENT_EVENT_INDEX' });
+    expect(simulation.getState().currentEventIndex).toEqual(1);
 
-    simulation.dispatch({
-      type: 'SCHEDULE_EVENT', time: noonTimeOfDay, event: noonEvent,
-    });
-    expect(simulation.getState().timeline).toEqual([
-      { time: dawnTimeOfDay, event: dawnEvent },
-      { time: noonTimeOfDay, event: noonEvent },
-    ]);
-
-    simulation.dispatch({
-      type: 'SCHEDULE_EVENT', time: duskTimeOfDay, event: duskEvent,
-    });
-    expect(simulation.getState().timeline).toEqual([
-      { time: dawnTimeOfDay, event: dawnEvent },
-      { time: noonTimeOfDay, event: noonEvent },
-      { time: duskTimeOfDay, event: duskEvent },
-    ]);
-
-    simulation.dispatch({
-      type: 'SCHEDULE_EVENT', time: noonTimeOfDay, event: lunchEvent,
-    });
-    expect(simulation.getState().timeline).toEqual([
-      { time: dawnTimeOfDay, event: dawnEvent },
-      { time: noonTimeOfDay, event: noonEvent },
-      { time: noonTimeOfDay, event: lunchEvent },
-      { time: duskTimeOfDay, event: duskEvent },
-    ]);
+    simulation.dispatch({ type: 'INCREMENT_CURRENT_EVENT_INDEX' });
+    expect(simulation.getState().currentEventIndex).toEqual(2);
   });
 
-  it('can increment current step', () => {
-    expect(simulation.getState().currentStep).toEqual(0);
+  it('can log actor histories', () => {
+    expect(simulation.getState().actors).toEqual(initialActors);
 
-    simulation.dispatch({ type: 'INCREMENT_CURRENT_STEP' });
-    expect(simulation.getState().currentStep).toEqual(1);
+    simulation.dispatch({ type: 'LOG_ACTOR_HISTORIES' });
+    const initialActorsWith1DeepHistories = initialActors.map(actor => (
+      Immutable.fromJS(actor).set('history', [actor]).toJS()
+    ));
+    expect(simulation.getState().actors).toEqual(
+      initialActorsWith1DeepHistories
+    );
 
-    simulation.dispatch({ type: 'INCREMENT_CURRENT_STEP' });
-    expect(simulation.getState().currentStep).toEqual(2);
+    simulation.dispatch({ type: 'LOG_ACTOR_HISTORIES' });
+    const initialActorsWith2DeepHistories = initialActors.map(actor => (
+      Immutable.fromJS(actor).set('history', [actor, actor]).toJS()
+    ));
+    expect(simulation.getState().actors).toEqual(
+      initialActorsWith2DeepHistories
+    );
   });
 
   it('can run', () => {
-    const asleepActors = actors.map(
-      actor => Immutable.fromJS(actor).set('awake', false).toJS()
-    );
-    expect(simulation.getState().timeline).toEqual([]);
+    expect(simulation.getState().currentEventIndex).toEqual(0);
 
-    setUp(simulation);
     simitate.run(simulation);
-    expect(simulation.getState().timeline).toEqual([
-      { time: dawnTimeOfDay, event: dawnEvent, actors },
-      { time: noonTimeOfDay, event: noonEvent, actors },
-      { time: noonTimeOfDay, event: lunchEvent, actors },
-      { time: duskTimeOfDay, event: duskEvent, actors: asleepActors },
-    ]);
+    expect(simulation.getState().currentEventIndex).toEqual(
+      initialTimeline.length
+    );
   });
 });
