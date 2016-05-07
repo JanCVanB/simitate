@@ -6,8 +6,13 @@ export default function run(simulation) {
     const currentEventIndex = simulation.getState().currentEventIndex;
     const timeline = simulation.getState().timeline;
     const currentEvent = timeline[currentEventIndex];
+    const currentTime = currentEvent.time;
+    const logEvent = { type: 'LOG_ACTOR_HISTORIES', time: currentTime };
+    const incrementEventIndexEvent = {
+      type: 'INCREMENT_CURRENT_EVENT_INDEX', time: currentTime,
+    };
     simulation.dispatch(currentEvent);
-    simulation.dispatch({ type: 'LOG_ACTOR_HISTORIES' });
-    simulation.dispatch({ type: 'INCREMENT_CURRENT_EVENT_INDEX' });
+    simulation.dispatch(logEvent);
+    simulation.dispatch(incrementEventIndexEvent);
   }
 }
