@@ -1,10 +1,10 @@
 const simitate = require('../src/index');
 
 describe('The view library', () => {
-  it('can show actors over time', () => {
+  it('can show actor histories', () => {
     const simulation = {
-      getState: () => ({ timeline: [{ actors: [1, 2] }, { actors: [3, 4] }] }),
+      getState: () => ({ actors: [{ history: [1, 2] }, { history: [3, 4] }] }),
     };
-    expect(simitate.getActorsOverTime(simulation)).toEqual([[1, 2], [3, 4]]);
+    expect(simitate.getActorHistories(simulation)).toEqual([[1, 2], [3, 4]]);
   });
 });

@@ -1,9 +1,11 @@
 import createSimulation from './createSimulation';
-import { getActorsOverTime } from './view';
+import { insertEventIntoTimeline } from './timelineUtils';
+import { getActorHistories } from './view';
 import run from './run';
 
 export {
   createSimulation,
-  getActorsOverTime,
+  getActorHistories,
+  insertEventIntoTimeline,
   run,
 };
