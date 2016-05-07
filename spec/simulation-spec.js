@@ -1,79 +1,12 @@
 const Immutable = require('immutable');
 const simitate = require('../src/index');
+import {
+  initialActors, initialTimeline, actorReactions, timelineReactions,
+  dawnEvent, duskEvent,
+} from '../examples/sleeping';
 
 describe('A simulation', () => {
   let simulation;
-  const alice = { name: 'Alice', awake: true };
-  const betty = { name: 'Betty', awake: true };
-  const initialActors = [alice, betty];
-  const dawnTimeOfDay = 500;
-  const noonTimeOfDay = 1200;
-  const duskTimeOfDay = 1900;
-  const dawnEvent = {
-    type: 'TIME_OF_DAY', time: dawnTimeOfDay, timeOfDay: dawnTimeOfDay,
-  };
-  const noonEvent = {
-    type: 'TIME_OF_DAY', time: noonTimeOfDay, timeOfDay: noonTimeOfDay,
-  };
-  const lunchEvent = {
-    type: 'TIME_OF_DAY', time: noonTimeOfDay, timeOfDay: noonTimeOfDay,
-  };
-  const duskEvent = {
-    type: 'TIME_OF_DAY', time: duskTimeOfDay, timeOfDay: duskTimeOfDay,
-  };
-  const initialTimeline = [dawnEvent, noonEvent, lunchEvent, duskEvent];
-  const actorReactions = {
-    TIME_OF_DAY: (currentActors, event) => {
-      switch (event.timeOfDay) {
-        case dawnTimeOfDay:
-          return currentActors.map(actor =>
-            Immutable.fromJS(actor).set('awake', true).toJS());
-        case duskTimeOfDay:
-          return currentActors.map(actor =>
-            Immutable.fromJS(actor).set('awake', false).toJS());
-        default:
-          return currentActors;
-      }
-    },
-  };
-  const timelineReactions = {
-    TIME_OF_DAY: (currentTimeline, event) => {
-      if (event.time > 24000) {
-        return currentTimeline;
-      }
-      switch (event.timeOfDay) {
-        case dawnTimeOfDay: {
-          const nextDusk = {
-            type: 'TIME_OF_DAY',
-            time: event.time + duskTimeOfDay - dawnTimeOfDay,
-            timeOfDay: duskTimeOfDay,
-          };
-          return simitate.insertEventIntoTimeline(
-            nextDusk, [...currentTimeline]
-          );
-        }
-        case duskTimeOfDay: {
-          const nextDawn = {
-            type: 'TIME_OF_DAY',
-            time: event.time + 2400 - (duskTimeOfDay - dawnTimeOfDay),
-            timeOfDay: dawnTimeOfDay,
-          };
-          return simitate.insertEventIntoTimeline(
-            nextDawn, [...currentTimeline]
-          );
-        }
-        default:
-          return currentTimeline;
-      }
-    },
-  };
-
-  const awakeActors = initialActors.map(actor => (
-    Immutable.fromJS(actor).set('awake', true).toJS()
-  ));
-  const asleepActors = initialActors.map(actor => (
-    Immutable.fromJS(actor).set('awake', false).toJS()
-  ));
 
   beforeEach(() => {
     simulation = simitate.createSimulation(
@@ -101,12 +34,12 @@ describe('A simulation', () => {
   it('can add events', () => {
     expect(simulation.getState().timeline).toEqual(initialTimeline);
 
-    const secondDawnEvent = {
-      type: 'TIME_OF_DAY', time: 2400 + dawnTimeOfDay, timeOfDay: dawnTimeOfDay,
-    };
-    const secondDuskEvent = {
-      type: 'TIME_OF_DAY', time: 2400 + duskTimeOfDay, timeOfDay: duskTimeOfDay,
-    };
+    const secondDawnEvent = (
+      Immutable.fromJS(dawnEvent).set('time', dawnEvent.time + 2400).toJS()
+    );
+    const secondDuskEvent = (
+      Immutable.fromJS(duskEvent).set('time', duskEvent.time + 2400).toJS()
+    );
     simulation.dispatch({ type: 'ADD_EVENT', event: secondDuskEvent });
     simulation.dispatch({ type: 'ADD_EVENT', event: secondDawnEvent });
     expect(simulation.getState().timeline).toEqual(
@@ -115,7 +48,14 @@ describe('A simulation', () => {
   });
 
   it('can handle actor reactions', () => {
-    expect(simulation.getState().actors).toEqual(awakeActors);
+    const asleepActors = initialActors.map(actor => (
+      Immutable.fromJS(actor).set('awake', false).toJS()
+    ));
+    const awakeActors = initialActors.map(actor => (
+      Immutable.fromJS(actor).set('awake', true).toJS()
+    ));
+
+    expect(simulation.getState().actors).toEqual(initialActors);
 
     simulation.dispatch(duskEvent);
     expect(simulation.getState().actors).toEqual(asleepActors);
