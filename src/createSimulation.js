@@ -10,17 +10,18 @@ export default function createSimulation(
       case 'ADD_ACTOR':
         return [...actors_, event.actor];
       case 'LOG_ACTOR_HISTORIES':
-        if (!actors_[0].history) {
-          return actors_.map(actor => (
-            Immutable.fromJS(actor).set('history', [actor]).toJS()
-          ));
-        }
-        return actors_.map(actor => (
-          Immutable.fromJS(actor).set(
-            'history',
-            [...actor.history, Immutable.fromJS(actor).delete('history').toJS()]
-          ).toJS()
-        ));
+        return actors_.map(actor => {
+          const actorHistory = actor.history ? actor.history : [];
+          const historyEntry = (
+            Immutable.fromJS(actor)
+              .delete('history').set('time', event.time).toJS()
+          );
+          const updatedHistory = [...actorHistory, historyEntry];
+          const actorWithUpdatedHistory = (
+            Immutable.fromJS(actor).set('history', updatedHistory).toJS()
+          );
+          return actorWithUpdatedHistory;
+        });
       default:
         if (event.type in actorReactions) {
           return actorReactions[event.type](actors_, event);
