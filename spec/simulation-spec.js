@@ -1,7 +1,7 @@
 const Immutable = require('immutable');
 const simitate = require('../src/index');
 import {
-  initialActors, initialTimeline, actorReactions, timelineReactions,
+  initialActors, initialTimeline, actorsReactions, timelineReactions,
   dawnEvent, duskEvent,
 } from '../examples/sleeping';
 
@@ -10,7 +10,7 @@ describe('A simulation', () => {
 
   beforeEach(() => {
     simulation = simitate.createSimulation(
-      initialActors, initialTimeline, actorReactions, timelineReactions
+      initialActors, initialTimeline, actorsReactions, timelineReactions
     );
   });
 

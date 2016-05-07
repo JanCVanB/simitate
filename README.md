@@ -98,20 +98,20 @@ for both the `actors` and the `timeline`.
 
 ```javascript
 const getAwakeActor = actor => Immutable.fromJS(actor).set(awake, true).toJS();
-const actorsReactToSunrise = (actors, sunrise) => actors.map(getAwakeActor);
+const actorsReactionToSunrise = (actors, sunrise) => actors.map(getAwakeActor);
 
 const actorsReactions = {
-  SUNRISE: actorsReactToSunrise,
+  SUNRISE: actorsReactionToSunrise,
 };
 
-const timelineReactsToSunrise = (timeline, sunrise) => {
+const timelineReactionToSunrise = (timeline, sunrise) => {
   const nextSunset = { type: 'SUNSET', time: sunrise.time + 12, beauty: sunrise.beauty + 1 };
   const newTimeline = simitate.insertEventIntoTimeline(nextSunset, timeline);
   return newTimeline;
 };
 
 const timelineReactions = {
-  SUNRISE: timelineReactsToSunrise,
+  SUNRISE: timelineReactionToSunrise,
 };
 ```
 

@@ -29,7 +29,7 @@ const initialTimeline = [
   { time: 2.75, type: TIME_OF_DAY, timeOfDay: dusk },
 ];
 
-const actorReactions = {
+const actorsReactions = {
   BREAKFAST: (currentActors) => (
     currentActors.map(actor => (
       Immutable.fromJS(actor).set('fullness', 0.7).toJS()
@@ -73,7 +73,7 @@ const actorReactions = {
 const timelineReactions = {};
 
 const simulation = simitate.createSimulation(
-  initialActors, initialTimeline, actorReactions, timelineReactions
+  initialActors, initialTimeline, actorsReactions, timelineReactions
 );
 simitate.run(simulation);
 

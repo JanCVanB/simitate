@@ -26,7 +26,7 @@ const duskEvent = {
 const initialTimeline = [
   midnightEvent, dawnEvent, noonEvent, lunchEvent, duskEvent,
 ];
-const actorReactions = {
+const actorsReactions = {
   TIME_OF_DAY: (currentActors, event) => {
     switch (event.timeOfDay) {
       case dawnTimeOfDay:
@@ -58,7 +58,7 @@ const timelineReactions = {
 };
 
 const simulation = simitate.createSimulation(
-  initialActors, initialTimeline, actorReactions, timelineReactions
+  initialActors, initialTimeline, actorsReactions, timelineReactions
 );
 simitate.run(simulation);
 
@@ -89,6 +89,6 @@ console.log(bettyWakeUpTimes);
 console.log();
 
 export {
-  initialActors, initialTimeline, actorReactions, timelineReactions,
+  initialActors, initialTimeline, actorsReactions, timelineReactions,
   dawnEvent, duskEvent,
 };
