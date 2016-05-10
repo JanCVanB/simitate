@@ -1,72 +1,59 @@
 import Immutable from 'immutable';
 import { combineReducers, createStore } from 'redux';
-import scheduleEvent from './scheduleEvent';
+import { insertEventIntoTimeline } from './timelineUtils';
 
-export default function createSimulation(eventReactions) {
-  const currentActors = (state = [], action) => {
-    switch (action.type) {
-      case 'INITIALIZE_CURRENT_ACTORS':
-        return action.actors;
+export default function createSimulation(
+  initialActors, initialTimeline, actorsReactions, timelineReactions
+) {
+  const actors = (actors_ = initialActors, event) => {
+    switch (event.type) {
+      case 'ADD_ACTOR':
+        return [...actors_, event.actor];
+      case 'LOG_ACTOR_HISTORIES':
+        return actors_.map(actor => {
+          const actorHistory = actor.history ? actor.history : [];
+          const historyEntry = (
+            Immutable.fromJS(actor)
+              .delete('history').set('time', event.time).toJS()
+          );
+          const updatedHistory = [...actorHistory, historyEntry];
+          const actorWithUpdatedHistory = (
+            Immutable.fromJS(actor).set('history', updatedHistory).toJS()
+          );
+          return actorWithUpdatedHistory;
+        });
       default:
-        if (action.type in eventReactions) {
-          return eventReactions[action.type](state, action);
+        if (event.type in actorsReactions) {
+          return actorsReactions[event.type](actors_, event);
         }
-        return state;
+        return actors_;
     }
   };
 
-  const currentStep = (state = 0, action) => {
-    switch (action.type) {
-      case 'INCREMENT_CURRENT_STEP':
-        return state + 1;
+  const currentEventIndex = (currentEventIndex_ = 0, event) => {
+    switch (event.type) {
+      case 'INCREMENT_CURRENT_EVENT_INDEX':
+        return currentEventIndex_ + 1;
       default:
-        return state;
+        return currentEventIndex_;
     }
   };
 
-  const initialActors = (state = [], action) => {
-    switch (action.type) {
-      case 'ADD_INITIAL_ACTOR':
-        return [...state, action.actor];
+  const timeline = (timeline_ = initialTimeline, event) => {
+    switch (event.type) {
+      case 'ADD_EVENT':
+        return insertEventIntoTimeline(event.event, [...timeline_]);
       default:
-        return state;
-    }
-  };
-
-  const initialEvents = (state = [], action) => {
-    switch (action.type) {
-      case 'ADD_INITIAL_EVENT':
-        return [...state, action.event];
-      default:
-        return state;
-    }
-  };
-
-  const timeline = (state = [], action) => {
-    switch (action.type) {
-      case 'LOG_ACTORS':
-        return (
-          Immutable.fromJS(state).map((step, index) => {
-            if (index === action.currentStep) {
-              return step.set(
-                'actors', Immutable.fromJS(action.actors).toJS()
-              ).toJS();
-            }
-            return step;
-          }).toJS()
-        );
-      case 'SCHEDULE_EVENT':
-        return scheduleEvent([...state], action.time, action.event);
-      default:
-        return state;
+        if (event.type in timelineReactions) {
+          return timelineReactions[event.type](timeline_, event);
+        }
+        return timeline_;
     }
   };
 
   const simulation = combineReducers({
-    currentActors,
-    currentStep,
-    initialActors,
-    initialEvents,
+    actors,
+    currentEventIndex,
     timeline,
   });
 
